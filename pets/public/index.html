@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pet Tracker</title>
+</head>
+<body>
+  <h1>Pet Tracker</h1>
+
+  <!-- Add these links -->
+  <nav>
+    <a href="/register.html">Register</a> |
+    <a href="/login.html">Login</a>
+    <a href="/adopt.html">Request Adoption</a>
+    <a href="/admin.html">Admin Panel</a>
+
+
+  </nav>
+
+  <hr>
+
+  <!-- Your existing form and list go here -->
+  <h2>Add a Pet</h2>
+  <form id="petForm">
+    <input name="name" placeholder="Name" required><br>
+    <input name="species" placeholder="Species" required><br>
+    <input name="breed" placeholder="Breed"><br>
+    <input name="age" type="number" placeholder="Age"><br>
+    <input name="gender" placeholder="Gender"><br>
+    <textarea name="description" placeholder="Description"></textarea><br>
+    <button type="submit">Add Pet</button>
+  </form>
+
+  <h2>Pet List</h2>
+  <ul id="petList"></ul>
+
+  <script>
+    const form = document.getElementById('petForm');
+    const petList = document.getElementById('petList');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      await fetch('/api/pets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      form.reset();
+      loadPets();
+    });
+
+    async function loadPets() {
+      const res = await fetch('/api/pets');
+      const pets = await res.json();
+      petList.innerHTML = pets.map(p => `<li>${p.name} (${p.species})</li>`).join('');
+    }
+
+    loadPets();
+  </script>
+</body>
+</html>
