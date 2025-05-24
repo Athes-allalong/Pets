@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HappyTails</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="images\logo1.png" alt="HappyTails Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+        <strong>HappyTails</strong>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="register.html">Register</a>
+        <a href="login.html">Login</a>
+        <a href="adopt.html">Adopt</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <section class="hero">
+      <h1>Where Every Paw Finds a Home</h1>
+      <button onclick="window.location.href='adopt.html'">View Details</button>
+    </section>
+
+    <section class="adoption-section">
+      <h2>Pets Available for Adoption</h2>
+      <div class="pet-cards">
+        <div class="pet-card">
+          <img src="images\puppy2.jpg" alt="Bella">
+          <h3>Bella</h3>
+         <button onclick="window.location.href='adopt.html'">Adopt</button>
+        </div>
+        <div class="pet-card">
+          <img src="images\cat.jpg" alt="Max">
+          <h3>Max</h3>
+          <button onclick="window.location.href='adopt.html'">Adopt</button>
+        </div>
+        <div class="pet-card">
+          <img src="images\puppy1.jpg" alt="Luna">
+          <h3>Luna</h3>
+          <button onclick="window.location.href='adopt.html'">Adopt</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="health-tracker">
+      <h2>Health Tracker</h2>
+      <div class="tracker-grid">
+        <div class="tracker-card">🩺 Medical Care</div>
+        <div class="tracker-card">💉 Vaccinations</div>
+        <div class="tracker-card">💊 Medications</div>
+        <div class="tracker-card">📋 Health Records</div>
+      </div>
+      <button onclick="window.location.href='admin.html'">View History</button>
+    </section>
+  </main>
+</body>
+</html>
