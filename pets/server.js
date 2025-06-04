@@ -12,7 +12,7 @@ const Adoption = require('./models/Adoption');
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('Punya'));
 
 mongoose.connect('mongodb+srv://1by23is101:6SHMqBU4k0ndbedN@cluster0.sfxvlph.mongodb.net/Pet', {
   useNewUrlParser: true,
