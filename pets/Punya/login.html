@@ -32,5 +32,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     localStorage.setItem('user', JSON.stringify(result.user)); // simple local storage
     window.location.href = '/'; // redirect to home
   }
+  // Inside your login success handler
+localStorage.setItem("isLoggedIn", "true");
+window.location.href = "index.html"; // or wherever you want to redirect
+
 });
 </script>
