@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-mongoose.connect('mongodb://localhost:27017/petdb', {
+mongoose.connect('mongodb+srv://1by23is101:6SHMqBU4k0ndbedN@cluster0.sfxvlph.mongodb.net/Pet', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
