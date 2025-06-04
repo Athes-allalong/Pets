@@ -10,15 +10,11 @@
   <header>
     <nav class="navbar">
       <div class="logo">
-        <img src="image\logo1.png" alt="HappyTails Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+        <img src="image/logo1.png" alt="HappyTails Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
         <strong>HappyTails</strong>
       </div>
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="register.html">Register</a>
-        <a href="login.html">Login</a>
-        <a href="adopt.html">Adopt</a>
-        <a href="admin.html">Admin</a>
+      <div class="nav-links" id="navLinks">
+        <!-- This will be dynamically filled -->
       </div>
     </nav>
   </header>
@@ -33,17 +29,17 @@
       <h2>Pets Available for Adoption</h2>
       <div class="pet-cards">
         <div class="pet-card">
-          <img src="image\puppy2.jpg" alt="Bella">
+          <img src="image/puppy2.jpg" alt="Bella">
           <h3>Bella</h3>
-         <button onclick="window.location.href='adopt.html'">Adopt</button>
+          <button onclick="window.location.href='adopt.html'">Adopt</button>
         </div>
         <div class="pet-card">
-          <img src="image\cat.jpg" alt="Max">
+          <img src="image/cat.jpg" alt="Max">
           <h3>Max</h3>
           <button onclick="window.location.href='adopt.html'">Adopt</button>
         </div>
         <div class="pet-card">
-          <img src="image\puppy1.jpg" alt="Luna">
+          <img src="image/puppy1.jpg" alt="Luna">
           <h3>Luna</h3>
           <button onclick="window.location.href='adopt.html'">Adopt</button>
         </div>
@@ -61,5 +57,33 @@
       <button onclick="window.location.href='admin.html'">View History</button>
     </section>
   </main>
+
+  <script>
+    // Check login status
+    function isLoggedIn() {
+      return localStorage.getItem("isLoggedIn") === "true";
+    }
+
+    function renderNavLinks() {
+      const navLinks = document.getElementById("navLinks");
+      navLinks.innerHTML = `
+        <a href="adopt.html">Adopt</a>
+        <a href="admin.html">Admin</a>
+        ${isLoggedIn()
+          ? '<a href="#" onclick="logout()">Logout</a>'
+          : '<a href="login.html">Login</a>'
+        }
+      `;
+    }
+
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      renderNavLinks();
+      alert("Logged out successfully!");
+    }
+
+    // Initial render
+    renderNavLinks();
+  </script>
 </body>
 </html>
