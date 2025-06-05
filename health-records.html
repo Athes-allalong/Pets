@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Health Records Management</title>
+  <!-- Add Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Add Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .health-records-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .health-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .health-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .health-button {
+      padding: 10px 20px;
+      background: #4c8bf5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    .health-button:hover {
+      background: #336ee8;
+    }
+
+    .health-button.secondary {
+      background: #6c757d;
+    }
+
+    .health-button.secondary:hover {
+      background: #5a6268;
+    }
+
+    .records-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .record-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .record-card h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+      border-bottom: 2px solid #4c8bf5;
+      padding-bottom: 10px;
+    }
+
+    .record-details {
+      margin-bottom: 15px;
+    }
+
+    .record-details p {
+      margin: 5px 0;
+      color: #666;
+    }
+
+    .record-details strong {
+      color: #333;
+    }
+
+    .vital-signs {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .status-resolved {
+      background: #28a745;
+      color: white;
+    }
+
+    .status-pending {
+      background: #ffc107;
+      color: black;
+    }
+
+    .status-critical {
+      background: #dc3545;
+      color: white;
+    }
+
+    .filter-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-section select,
+    .filter-section input {
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .filter-section button {
+      padding: 8px 15px;
+      background: #4c8bf5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .filter-section button:hover {
+      background: #336ee8;
+    }
+
+    .error-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #dc3545;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      z-index: 9999;
+      max-width: 400px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .debug-info {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      z-index: 9999;
+      max-width: 400px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="health-records-container">
+    <div class="health-header">
+      <h2>Health Records Management</h2>
+      <div class="health-buttons">
+        <button class="health-button" onclick="openNewAppointmentModal()">
+          <i class="fas fa-plus"></i> New Appointment
+        </button>
+        <a href="admin.html" class="health-button secondary">Back to Admin</a>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <select id="petFilter">
+        <option value="">All Pets</option>
+      </select>
+      <select id="visitTypeFilter">
+        <option value="">All Visit Types</option>
+        <option value="checkup">Checkup</option>
+        <option value="vaccination">Vaccination</option>
+        <option value="procedure">Procedure</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="resolved">Resolved</option>
+        <option value="pending">Pending</option>
+        <option value="critical">Critical</option>
+      </select>
+      <button onclick="applyFilters()">Apply Filters</button>
+    </div>
+
+    <div class="records-grid" id="recordsGrid">
+      <!-- Health records will be dynamically loaded here -->
+    </div>
+  </div>
+
+  <!-- New Appointment Modal -->
+  <div class="modal" id="newAppointmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newAppointmentModalLabel">New Health Record</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="newAppointmentForm">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="petSelect" class="form-label">Pet</label>
+                <select class="form-select" id="petSelect" required>
+                  <option value="">Select a pet...</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="veterinarianSelect" class="form-label">Veterinarian</label>
+                <select class="form-select" id="veterinarianSelect" required>
+                  <option value="">Select a veterinarian...</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="visitType" class="form-label">Visit Type</label>
+                <select class="form-select" id="visitType" required>
+                  <option value="">Select type...</option>
+                  <option value="checkup">Regular Checkup</option>
+                  <option value="vaccination">Vaccination</option>
+                  <option value="procedure">Medical Procedure</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="appointmentDate" class="form-label">Date</label>
+                <input type="datetime-local" class="form-control" id="appointmentDate" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" required>
+                  <option value="active">Active</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="monitoring">Monitoring</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="notes" class="form-label">Notes</label>
+                <textarea class="form-control" id="notes" rows="3"></textarea>
+              </div>
+            </div>
+
+            <!-- Add Vital Signs Section -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6 class="mb-0">Vital Signs</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="temperature" class="form-label">Temperature (°C)</label>
+                    <input type="number" class="form-control" id="temperature" step="0.1" min="35" max="42" value="38.5">
+                    <small class="text-muted">Normal range: 37.5-39.5°C</small>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="heartRate" class="form-label">Heart Rate (bpm)</label>
+                    <input type="number" class="form-control" id="heartRate" min="40" max="200" value="80">
+                    <small class="text-muted">Normal range: 60-140 bpm</small>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="respiratoryRate" class="form-label">Respiratory Rate (breaths/min)</label>
+                    <input type="number" class="form-control" id="respiratoryRate" min="10" max="50" value="20">
+                    <small class="text-muted">Normal range: 15-30 breaths/min</small>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="weight" class="form-label">Weight (kg)</label>
+                    <input type="number" class="form-control" id="weight" step="0.1" min="0.1" max="100" value="0">
+                    <small class="text-muted">Enter current weight</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="submitNewAppointment()">Save Appointment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is logged in and is admin
+    if (!localStorage.getItem('isLoggedIn') || !JSON.parse(localStorage.getItem('user')).isAdmin) {
+      window.location.href = 'login.html';
+    }
+
+    // Move modal initialization to the top of the script
+    let newAppointmentModal;
+    
+    // Initialize modal when the page loads
+    window.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap modal
+        const modalElement = document.getElementById('newAppointmentModal');
+        if (modalElement) {
+            newAppointmentModal = new bootstrap.Modal(modalElement);
+        }
+        
+        // Load initial data
+        loadPets();
+        loadHealthRecords();
+        loadPetsForSelect();
+        loadVeterinarians();
+    });
+
+    // Add showAlert function if it doesn't exist
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.querySelector('.health-records-container').insertAdjacentElement('afterbegin', alertDiv);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Load all pets for the filter dropdown
+    async function loadPets() {
+      try {
+        const response = await fetch('/api/pets');
+        const pets = await response.json();
+        const petFilter = document.getElementById('petFilter');
+        
+        pets.forEach(pet => {
+          const option = document.createElement('option');
+          option.value = pet.name;
+          option.textContent = pet.name;
+          petFilter.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading pets:', error);
+      }
+    }
+
+    // Load health records
+    async function loadHealthRecords(filters = {}) {
+      try {
+        let url = '/api/health-records';
+        if (filters.petName) {
+          url += `/${filters.petName}`;
+        }
+        
+        const response = await fetch(url);
+        const records = await response.json();
+        
+        // Apply filters
+        let filteredRecords = records;
+        if (filters.visitType) {
+          filteredRecords = filteredRecords.filter(record => record.visitType === filters.visitType);
+        }
+        if (filters.status) {
+          filteredRecords = filteredRecords.filter(record => record.status === filters.status);
+        }
+
+        const recordsGrid = document.getElementById('recordsGrid');
+        recordsGrid.innerHTML = filteredRecords.map(record => `
+          <div class="record-card">
+            <h3>${record.petName}</h3>
+            <div class="record-details">
+              <p><strong>Date:</strong> ${new Date(record.date).toLocaleDateString()}</p>
+              <p><strong>Visit Type:</strong> ${record.visitType}</p>
+              <p><strong>Veterinarian:</strong> ${record.veterinarian?.name || 'Not assigned'}</p>
+              
+              ${record.diagnosis?.length ? `
+                <p><strong>Diagnosis:</strong></p>
+                <ul>
+                  ${record.diagnosis.map(d => `
+                    <li>${d.condition} (${d.severity}) - ${d.status}</li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+
+              ${record.vitalSigns ? `
+                <div class="vital-signs">
+                  <p><strong>Vital Signs:</strong></p>
+                  <p>Temperature: ${record.vitalSigns.temperature}°C</p>
+                  <p>Heart Rate: ${record.vitalSigns.heartRate} bpm</p>
+                  <p>Respiratory Rate: ${record.vitalSigns.respiratoryRate} breaths/min</p>
+                  <p>Weight: ${record.vitalSigns.weight} kg</p>
+                </div>
+              ` : ''}
+
+              ${record.procedures?.length ? `
+                <p><strong>Procedures:</strong></p>
+                <ul>
+                  ${record.procedures.map(p => `<li>${p.name}</li>`).join('')}
+                </ul>
+              ` : ''}
+
+              ${record.vaccinations?.length ? `
+                <p><strong>Vaccinations:</strong></p>
+                <ul>
+                  ${record.vaccinations.map(v => `<li>${v.name}</li>`).join('')}
+                </ul>
+              ` : ''}
+
+              <p><strong>Notes:</strong> ${record.notes || 'No notes'}</p>
+              <span class="status-badge status-${record.status}">${record.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading health records:', error);
+        document.getElementById('recordsGrid').innerHTML = 
+          '<p style="text-align: center; color: red;">Failed to load health records. Please try again later.</p>';
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const filters = {
+        petName: document.getElementById('petFilter').value,
+        visitType: document.getElementById('visitTypeFilter').value,
+        status: document.getElementById('statusFilter').value
+      };
+      loadHealthRecords(filters);
+    }
+
+    // Add these new functions after the existing JavaScript code
+    let procedures = [];
+    let vaccinations = [];
+
+    async function loadPetsForSelect() {
+        try {
+            const response = await fetch('/api/pets');
+            const pets = await response.json();
+            const petSelect = document.getElementById('petSelect');
+            petSelect.innerHTML = '<option value="">Select a pet...</option>';
+            pets.forEach(pet => {
+                // Store both ID and name
+                petSelect.innerHTML += `<option value="${pet._id}" data-name="${pet.name}">${pet.name} (${pet.type})</option>`;
+            });
+        } catch (error) {
+            console.error('Error loading pets:', error);
+            showAlert('Error loading pets', 'danger');
+        }
+    }
+
+    async function loadVeterinarians() {
+        try {
+            const response = await fetch('/api/veterinarians');
+            const vets = await response.json();
+            const vetSelect = document.getElementById('veterinarianSelect');
+            vetSelect.innerHTML = '<option value="">Select a veterinarian...</option>';
+            vets.forEach(vet => {
+                vetSelect.innerHTML += `<option value="${vet._id}">Dr. ${vet.name} (${vet.specialization})</option>`;
+            });
+        } catch (error) {
+            console.error('Error loading veterinarians:', error);
+            showAlert('Error loading veterinarians', 'danger');
+        }
+    }
+
+    async function loadProceduresAndVaccinations() {
+        try {
+            console.log('Loading procedures and vaccinations...');
+            const [proceduresResponse, vaccinationsResponse] = await Promise.all([
+                fetch('/api/medical-procedures'),  // Changed from /api/procedures
+                fetch('/api/vaccinations')
+            ]);
+            
+            if (!proceduresResponse.ok || !vaccinationsResponse.ok) {
+                throw new Error('Failed to fetch procedures or vaccinations');
+            }
+
+            procedures = await proceduresResponse.json();
+            vaccinations = await vaccinationsResponse.json();
+            
+            console.log('Loaded procedures:', procedures);
+            console.log('Loaded vaccinations:', vaccinations);
+        } catch (error) {
+            console.error('Error loading procedures and vaccinations:', error);
+            showAlert('Error loading procedures and vaccinations: ' + error.message, 'danger');
+        }
+    }
+
+    function handleRecordTypeChange() {
+        console.log('Record type changed...');
+        const recordType = document.getElementById('recordType').value;
+        const procedureSelect = document.getElementById('procedureSelect');
+        
+        console.log('Selected record type:', recordType);
+        console.log('Available procedures:', procedures);
+        console.log('Available vaccinations:', vaccinations);
+        
+        procedureSelect.disabled = !recordType;
+        procedureSelect.innerHTML = '<option value="">Select procedure/vaccination...</option>';
+        
+        if (recordType === 'procedure' && procedures.length > 0) {
+            procedures.forEach(proc => {
+                const option = document.createElement('option');
+                option.value = proc._id;
+                option.textContent = proc.name;
+                procedureSelect.appendChild(option);
+            });
+            procedureSelect.disabled = false;
+        } else if (recordType === 'vaccination' && vaccinations.length > 0) {
+            vaccinations.forEach(vacc => {
+                const option = document.createElement('option');
+                option.value = vacc._id;
+                option.textContent = vacc.name;
+                procedureSelect.appendChild(option);
+            });
+            procedureSelect.disabled = false;
+        } else {
+            console.log('No procedures/vaccinations available for type:', recordType);
+            procedureSelect.disabled = true;
+        }
+    }
+
+    // Add this function to check if data is loaded
+    function checkDataLoaded() {
+        console.log('Checking loaded data:');
+        console.log('Procedures:', procedures);
+        console.log('Vaccinations:', vaccinations);
+        console.log('Modal element:', document.getElementById('newAppointmentModal'));
+        console.log('Procedure select element:', document.getElementById('procedureSelect'));
+    }
+
+    // Add this function at the top of your script
+    function showError(message, details = null) {
+        // Remove any existing error message
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Create and show new error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `
+            <strong>Error:</strong> ${message}
+            ${details ? `<br><small>${details}</small>` : ''}
+            <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: white; cursor: pointer;">×</button>
+        `;
+        document.body.appendChild(errorDiv);
+
+        // Auto-remove after 10 seconds
+        setTimeout(() => errorDiv.remove(), 10000);
+    }
+
+    function showDebugInfo(data) {
+        // Remove any existing debug info
+        const existingDebug = document.querySelector('.debug-info');
+        if (existingDebug) {
+            existingDebug.remove();
+        }
+
+        // Create and show debug info
+        const debugDiv = document.createElement('div');
+        debugDiv.className = 'debug-info';
+        debugDiv.innerHTML = `
+            <strong>Debug Info:</strong>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+            <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; cursor: pointer;">×</button>
+        `;
+        document.body.appendChild(debugDiv);
+    }
+
+    async function submitNewAppointment() {
+        const form = document.getElementById('newAppointmentForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        try {
+            // Get the selected pet's name
+            const petSelect = document.getElementById('petSelect');
+            const selectedPetOption = petSelect.options[petSelect.selectedIndex];
+            if (!selectedPetOption) {
+                throw new Error('Please select a pet');
+            }
+            const petName = selectedPetOption.getAttribute('data-name');
+            if (!petName) {
+                throw new Error('Pet name not found');
+            }
+
+            // Get veterinarian ID
+            const veterinarianId = document.getElementById('veterinarianSelect').value;
+            if (!veterinarianId) {
+                throw new Error('Please select a veterinarian');
+            }
+
+            // Get and validate date, convert to ISO format with timezone
+            const dateInput = document.getElementById('appointmentDate').value;
+            if (!dateInput) {
+                throw new Error('Please select a date');
+            }
+            // Convert the date to ISO format with timezone
+            const date = new Date(dateInput);
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid date format');
+            }
+            const isoDate = date.toISOString();
+
+            // Get and validate visit type
+            const visitType = document.getElementById('visitType').value;
+            if (!visitType) {
+                throw new Error('Please select a visit type');
+            }
+
+            // Get and validate status
+            const status = document.getElementById('status').value;
+            if (!status) {
+                throw new Error('Please select a status');
+            }
+
+            // Update the health record submission to use the vital signs from the form
+            const healthRecord = {
+                petName: petName,
+                date: isoDate,
+                veterinarian: veterinarianId,
+                visitType: visitType,
+                procedures: [],
+                vaccinations: visitType === 'vaccination' ? [{
+                    name: 'Default Vaccination',
+                    date: isoDate,
+                    status: 'completed'
+                }] : [],
+                vitalSigns: {
+                    temperature: parseFloat(document.getElementById('temperature').value) || 38.5,
+                    heartRate: parseInt(document.getElementById('heartRate').value) || 80,
+                    respiratoryRate: parseInt(document.getElementById('respiratoryRate').value) || 20,
+                    weight: parseFloat(document.getElementById('weight').value) || 0
+                },
+                notes: document.getElementById('notes').value || '',
+                status: status,
+                diagnosis: [],
+                medications: []
+            };
+
+            // Add validation for vital signs
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const heartRate = parseInt(document.getElementById('heartRate').value);
+            const respiratoryRate = parseInt(document.getElementById('respiratoryRate').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+
+            if (isNaN(temperature) || temperature < 35 || temperature > 42) {
+                throw new Error('Temperature must be between 35 and 42°C');
+            }
+            if (isNaN(heartRate) || heartRate < 40 || heartRate > 200) {
+                throw new Error('Heart rate must be between 40 and 200 bpm');
+            }
+            if (isNaN(respiratoryRate) || respiratoryRate < 10 || respiratoryRate > 50) {
+                throw new Error('Respiratory rate must be between 10 and 50 breaths/min');
+            }
+            if (isNaN(weight) || weight <= 0 || weight > 100) {
+                throw new Error('Weight must be between 0.1 and 100 kg');
+            }
+
+            // Show debug info
+            showDebugInfo(healthRecord);
+
+            const response = await fetch('/api/health-records', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(healthRecord)
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.message || 'Failed to create health record');
+            }
+
+            newAppointmentModal.hide();
+            showAlert('Health record created successfully', 'success');
+            loadHealthRecords();
+        } catch (error) {
+            console.error('Error creating health record:', error);
+            showError('Failed to create health record', error.message);
+        }
+    }
+
+    function openNewAppointmentModal() {
+        console.log('Opening modal...');
+        const modalElement = document.getElementById('newAppointmentModal');
+        if (!modalElement) {
+            console.error('Modal element not found!');
+            return;
+        }
+        
+        // Reset form
+        const form = document.getElementById('newAppointmentForm');
+        if (form) {
+            form.reset();
+        }
+
+        // Show modal using Bootstrap's modal method
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+  </script>
+  <!-- Add Bootstrap JS and Popper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html> 

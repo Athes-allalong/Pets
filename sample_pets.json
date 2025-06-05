@@ -1,0 +1,94 @@
+{
+  "pets": [
+    {
+      "name": "Bella",
+      "species": "Dog",
+      "breed": "Golden Retriever",
+      "age": 2,
+      "gender": "Female",
+      "description": "Friendly and playful Golden Retriever. Loves playing fetch and is great with children.",
+      "status": "available"
+    },
+    {
+      "name": "Max",
+      "species": "Cat",
+      "breed": "Siamese",
+      "age": 1,
+      "gender": "Male",
+      "description": "Elegant Siamese cat with beautiful blue eyes. Very affectionate and loves attention.",
+      "status": "available"
+    },
+    {
+      "name": "Luna",
+      "species": "Dog",
+      "breed": "Husky",
+      "age": 3,
+      "gender": "Female",
+      "description": "Energetic Husky with striking blue eyes. Needs regular exercise and loves outdoor activities.",
+      "status": "available"
+    },
+    {
+      "name": "Charlie",
+      "species": "Dog",
+      "breed": "Beagle",
+      "age": 1,
+      "gender": "Male",
+      "description": "Curious and friendly Beagle. Great sense of smell and loves exploring.",
+      "status": "available"
+    },
+    {
+      "name": "Milo",
+      "species": "Cat",
+      "breed": "Persian",
+      "age": 2,
+      "gender": "Male",
+      "description": "Calm and gentle Persian cat. Enjoys lounging and being pampered.",
+      "status": "available"
+    },
+    {
+      "name": "Daisy",
+      "species": "Dog",
+      "breed": "Poodle",
+      "age": 4,
+      "gender": "Female",
+      "description": "Intelligent and hypoallergenic Poodle. Great for families with allergies.",
+      "status": "available"
+    },
+    {
+      "name": "Oliver",
+      "species": "Cat",
+      "breed": "Maine Coon",
+      "age": 2,
+      "gender": "Male",
+      "description": "Large and majestic Maine Coon. Very social and dog-like personality.",
+      "status": "available"
+    },
+    {
+      "name": "Rocky",
+      "species": "Dog",
+      "breed": "German Shepherd",
+      "age": 0.3,
+      "gender": "Male",
+      "description": "Loyal and protective German Shepherd. Excellent guard dog and family companion.",
+      "status": "available"
+    },
+    {
+      "name": "Lily",
+      "species": "Cat",
+      "breed": "Ragdoll",
+      "age": 0.5,
+      "gender": "Female",
+      "description": "Beautiful Ragdoll cat with striking blue eyes. Very docile and loves to be held.",
+      "status": "available"
+    },
+    {
+      "name": "Buddy",
+      "species": "Dog",
+      "breed": "Labrador Retriever",
+      "age": 0.4,
+      "gender": "Male",
+      "description": "Friendly and outgoing Labrador. Great with kids and loves swimming.",
+      "status": "available"
+    }
+  ]
+} 

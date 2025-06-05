@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Adopt a Pet</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .error-message {
+      color: #dc3545;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+    .success-message {
+      color: #28a745;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .pet-info {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-form">
+    <form id="adoptionForm">
+      <h2>Adopt a Pet</h2>
+      
+      <div class="form-group">
+        <label>Your Username:</label>
+        <input name="username" type="text" readonly>
+      </div>
+
+      <div class="form-group">
+        <label>Pet Details:</label>
+        <div id="petInfo" class="pet-info">
+          <p><strong>Name:</strong> <span id="petNameDisplay"></span></p>
+          <p><strong>Species:</strong> <span id="petSpeciesDisplay"></span></p>
+          <p><strong>Breed:</strong> <span id="petBreedDisplay"></span></p>
+        </div>
+        <input name="petName" type="hidden">
+      </div>
+
+      <div class="form-group">
+        <label>Why do you want to adopt this pet?</label>
+        <textarea name="message" placeholder="Please tell us why you want to adopt this pet (minimum 10 characters)" required></textarea>
+        <div id="messageError" class="error-message"></div>
+      </div>
+
+      <button type="submit">Submit Adoption Request</button>
+    </form>
+  </div>
+
+  <script>
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      alert('Please login first to adopt a pet');
+      window.location.href = 'login.html';
+    }
+
+    // Get user info from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      // Pre-fill the username field with the logged-in user's name
+      document.querySelector('input[name="username"]').value = user.name;
+    }
+
+    // Get pet name from URL and fetch pet details
+    const urlParams = new URLSearchParams(window.location.search);
+    const petName = urlParams.get('pet');
+    
+    async function loadPetDetails(petName) {
+      try {
+        const res = await fetch('/api/pets');
+        const pets = await res.json();
+        const pet = pets.find(p => p.name === petName);
+        
+        if (pet) {
+          document.querySelector('input[name="petName"]').value = pet.name;
+          document.getElementById('petNameDisplay').textContent = pet.name;
+          document.getElementById('petSpeciesDisplay').textContent = pet.species;
+          document.getElementById('petBreedDisplay').textContent = pet.breed;
+        } else {
+          alert('Pet not found');
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        console.error('Error loading pet details:', error);
+        alert('Failed to load pet details');
+        window.location.href = 'index.html';
+      }
+    }
+
+    if (petName) {
+      loadPetDetails(petName);
+    } else {
+      alert('No pet selected');
+      window.location.href = 'index.html';
+    }
+
+    // Validate message length
+    document.querySelector('textarea[name="message"]').addEventListener('input', function(e) {
+      const message = e.target.value.trim();
+      const messageError = document.getElementById('messageError');
+      if (message.length > 0 && message.length < 10) {
+        messageError.textContent = 'Message must be at least 10 characters long';
+        messageError.style.display = 'block';
+      } else {
+        messageError.style.display = 'none';
+      }
+    });
+
+    document.getElementById('adoptionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      // Validate message length before submission
+      if (data.message.trim().length < 10) {
+        document.getElementById('messageError').textContent = 'Please provide a more detailed message (minimum 10 characters)';
+        document.getElementById('messageError').style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/adoptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+        
+        if (res.ok) {
+          alert('Adoption request submitted successfully!');
+          window.location.href = 'index.html';
+        } else {
+          alert(result.message || 'Adoption request failed');
+        }
+      } catch (error) {
+        console.error('Adoption error:', error);
+        alert('Adoption request failed. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

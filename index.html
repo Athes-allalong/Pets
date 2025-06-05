@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HappyTails</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pet-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 1rem;
+    }
+
+    .pet-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .pet-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .pet-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #eee;
+    }
+
+    .pet-info {
+      padding: 1rem;
+    }
+
+    .pet-card h3 {
+      margin: 0.5rem 0;
+      color: #333;
+    }
+
+    .pet-card p {
+      color: #666;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .pet-card button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #4c8bf5;
+      color: white;
+      border: none;
+      border-radius: 0 0 12px 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .pet-card button:hover {
+      background: #336ee8;
+    }
+
+    .pet-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .status-available {
+      background: #28a745;
+      color: white;
+    }
+
+    .status-adopted {
+      background: #dc3545;
+      color: white;
+    }
+
+    .pet-card {
+      position: relative;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links a.active {
+      background-color: #4c8bf5;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="image/logo1.png" alt="HappyTails Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+        <strong>HappyTails</strong>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <!-- Will be dynamically filled -->
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <section class="hero">
+      <h1>Where Every Paw Finds a Home</h1>
+    </section>
+
+    <section class="adoption-section">
+      <h2>Pets Available for Adoption</h2>
+      <div class="pet-cards" id="petCards">
+        <!-- Pet cards will be dynamically loaded here -->
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Function to get pet image based on species and breed
+    function getPetImage(pet) {
+      const imageMap = {
+        'Dog': {
+          'Golden Retriever': 'image/puppy2.jpg',
+          'Husky': 'image/Husky.jpg',
+          'Beagle': 'image/beagle.webp',
+          'Poodle': 'image/poodle.jpeg',
+          'German Shepherd': 'image/german_shepherd.png',
+          'Labrador Retriever': 'image/lab_ret.webp',
+          'default': 'image/puppy2.jpg'
+        },
+        'Cat': {
+          'Siamese': 'image/Siamese_kitten.webp',
+          'Persian': 'image/persian.webp',
+          'Maine Coon': 'image/maine_coon.webp',
+          'Ragdoll': 'image/ragdoll.jpeg',
+          'default': 'image/cat.jpg'
+        }
+      };
+
+      return imageMap[pet.species]?.[pet.breed] || imageMap[pet.species]?.default || 'image/pet-default.jpg';
+    }
+
+    // Function to handle adopt button click
+    function handleAdoptClick(petName) {
+      if (!isLoggedIn()) {
+        alert('Please login to adopt a pet');
+        window.location.href = 'login.html';
+        return;
+      }
+      window.location.href = `adopt.html?pet=${petName}`;
+    }
+
+    // Function to load and display pets
+    async function loadPets() {
+      try {
+        const response = await fetch('/api/pets');
+        const pets = await response.json();
+        const petCardsContainer = document.getElementById('petCards');
+        
+        petCardsContainer.innerHTML = pets.map(pet => `
+          <div class="pet-card">
+            <img src="${getPetImage(pet)}" alt="${pet.name}" onerror="this.src='image/pet-default.jpg'">
+            <div class="pet-status ${pet.status === 'available' ? 'status-available' : 'status-adopted'}">
+              ${pet.status}
+            </div>
+            <div class="pet-info">
+              <h3>${pet.name}</h3>
+              <p><strong>Breed:</strong> ${pet.breed}</p>
+              <p><strong>Age:</strong> ${pet.age} years</p>
+              <p><strong>Gender:</strong> ${pet.gender}</p>
+              <p>${pet.description}</p>
+              ${pet.status === 'available' 
+                ? `<button onclick="handleAdoptClick('${pet.name}')">Adopt</button>`
+                : `<button disabled style="background: #6c757d;">Already Adopted</button>`
+              }
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading pets:', error);
+        document.getElementById('petCards').innerHTML = 
+          '<p style="text-align: center; color: red;">Failed to load pets. Please try again later.</p>';
+      }
+    }
+
+    // Check login status and admin status
+    function isLoggedIn() {
+      return localStorage.getItem("isLoggedIn") === "true";
+    }
+
+    function isAdmin() {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user.isAdmin === true;
+    }
+
+    function renderNavLinks() {
+      const navLinks = document.getElementById("navLinks");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      let links = '';
+      if (isLoggedIn()) {
+        if (isAdmin()) {
+          links += '<a href="admin.html">Admin</a>';
+        }
+        links += `<a href="#" onclick="logout()">Logout (${user.name})</a>`;
+      } else {
+        links += '<a href="login.html">Login</a>';
+      }
+      
+      navLinks.innerHTML = links;
+    }
+
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("user");
+      renderNavLinks();
+      alert("Logged out successfully!");
+      window.location.reload(); // Reload to update the page state
+    }
+
+    // Initial render
+    renderNavLinks();
+    loadPets();
+  </script>
+</body>
+</html>
